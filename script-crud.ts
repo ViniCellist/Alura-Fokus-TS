@@ -34,6 +34,13 @@ const selecionarTarefa = (estado: EstadoAplicacao, tarefa: Tarefa): EstadoAplica
 
 }
 
+const adicionarTarefa = (estado: EstadoAplicacao, tarefa: Tarefa): EstadoAplicacao => {
+    return {
+        ...estado,
+        tarefas: [...estado.tarefas, tarefa]
+    }
+}
+
 const atualizarUI = () => {
     const taskIconSvg = `
         <svg 
@@ -58,6 +65,28 @@ const atualizarUI = () => {
     `;
 
     const ulTarefas = document.querySelector('.app__section-task-list');
+    const FormAdicionarTarefas = document.querySelector<HTMLFormElement>('.app__form-add-task')
+    const btnAdicionarTarefa = document.querySelector<HTMLButtonElement>('.app__button--add-task');
+    const textArea = document.querySelector<HTMLTextAreaElement>('.app__form-textarea');
+
+    if(!btnAdicionarTarefa) {
+        throw new Error("Caro colega, o elemento btnAdicionarTarefa não foi encontrado, favor rever")
+    }
+
+    btnAdicionarTarefa.onclick = () => {
+        FormAdicionarTarefas?.classList.toggle('hidden')
+    }
+
+    FormAdicionarTarefas!.onsubmit = (evento) => {
+        evento.preventDefault();
+        const descricao = textArea!.value;
+        estadoInicial = adicionarTarefa(estadoInicial, {
+            descricao,
+            concluida: false
+        })
+        atualizarUI();
+    }
+
     if (ulTarefas) {
         ulTarefas.innerHTML = '';
     }
@@ -89,7 +118,14 @@ const atualizarUI = () => {
         li.appendChild(paragraph);
         li.appendChild(button);
 
+        li.addEventListener('click', () => {
+            console.log("A tarefa foi clicada", tarefa)
+            estadoInicial = selecionarTarefa(estadoInicial, tarefa);
+            atualizarUI()
+        });
+
         ulTarefas?.appendChild(li);
     })
-
 }
+
+atualizarUI();
